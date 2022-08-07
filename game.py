@@ -5,7 +5,7 @@
 
 from __future__ import print_function
 import numpy as np
-
+from GUI_v1_4 import GUI
 
 class Board(object):
     """board for the game"""
@@ -186,6 +186,76 @@ class Game(object):
                     else:
                         print("Game end. Tie")
                 return winner
+                
+    def start_play_with_UI(self, AI, start_player=0):
+        '''
+        a GUI for playing
+        '''
+        AI.reset_player()
+        self.board.init_board()
+        current_player = SP = start_player
+        UI = GUI(self.board.width)
+        end = False
+        while True:
+            print('current_player', current_player)
+
+            if current_player == 0:
+                UI.show_messages('Your turn')
+            else:
+                UI.show_messages('AI\'s turn')
+
+            if current_player == 1 and not end:
+                move, move_probs = AI.get_action(self.board, temp=1e-3, return_prob=1)
+            else:
+                inp = UI.get_input()
+                if inp[0] == 'move' and not end:
+                    if type(inp[1]) != int:
+                        move = UI.loc_2_move(inp[1])
+                    else:
+                        move = inp[1]
+                elif inp[0] == 'RestartGame':
+                    end = False
+                    current_player = SP
+                    self.board.init_board()
+                    UI.restart_game()
+                    AI.reset_player()
+                    continue
+                elif inp[0] == 'ResetScore':
+                    UI.reset_score()
+                    continue
+                elif inp[0] == 'quit':
+                    exit()
+                    continue
+                elif inp[0] == 'SwitchPlayer':
+                    end = False
+                    self.board.init_board()
+                    UI.restart_game(False)
+                    UI.reset_score()
+                    AI.reset_player()
+                    SP = (SP+1) % 2
+                    current_player = SP
+                    continue
+                else:
+                    # print('ignored inp:', inp)
+                    continue
+            # print('player %r move : %r'%(current_player,[move//self.board.width,move%self.board.width]))
+            if not end:
+                # print(move, type(move), current_player)
+                UI.render_step(move, self.board.current_player)
+                self.board.do_move(move)
+                # print('move', move)
+                # print(2, self.board.get_current_player())
+                current_player = (current_player + 1) % 2
+                # UI.render_step(move, current_player)
+                end, winner = self.board.game_end()
+                if end:
+                    if winner != -1:
+                        print("Game end. Winner is player", winner)
+                        UI.add_score(winner)
+                    else:
+                        print("Game end. Tie")
+                    print(UI.score)
+                    print()
 
     def start_self_play(self, player, is_shown=0, temp=1e-3):
         """ start a self-play game using a MCTS player, reuse the search tree,

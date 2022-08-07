@@ -5,6 +5,7 @@ References:
 1. AlphaZero: Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm
 2. AlphaGo Zero: Mastering the game of Go without human knowledge
 
+### Update 2022.8.7: add GUI for human play!
 ### Update 2018.2.24: supports training with TensorFlow!
 ### Update 2018.1.17: supports training with PyTorch!
 
